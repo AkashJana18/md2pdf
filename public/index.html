@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>md2pdf &middot; Markdown to PDF with Mermaid</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128209;</text></svg>">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">md<span>2</span>pdf</span>
+    <span class="tag">Markdown &rarr; PDF, Mermaid rendered</span>
+  </div>
+  <div class="topactions">
+    <span id="engine" class="pill pill-warn">checking engine</span>
+    <button id="btnSample" class="btn btn-ghost">Load sample</button>
+    <button id="btnClear" class="btn btn-ghost">Clear</button>
+    <button id="btnExport" class="btn btn-primary" disabled>Export PDF</button>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- ---------------- left ---------------- -->
+  <aside class="sidebar">
+    <div id="dropzone" class="dropzone" tabindex="0">
+      <svg viewBox="0 0 24 24" class="dz-icon"><path d="M12 16V4m0 0L8 8m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p class="dz-main">Drop <code>.md</code> files here</p>
+      <p class="dz-sub">or click to browse &middot; paste with <kbd>Cmd</kbd>+<kbd>V</kbd></p>
+      <input type="file" id="fileInput" accept=".md,.markdown,.mdown,.mkd,text/markdown" multiple hidden>
+    </div>
+
+    <div class="filelist" id="filelist"></div>
+
+    <details class="options" id="options">
+      <summary>Layout &amp; style</summary>
+      <div class="optgrid">
+        <label>Page size
+          <select data-opt="pageSize">
+            <option value="a4">A4</option>
+            <option value="letter">Letter</option>
+            <option value="legal">Legal</option>
+            <option value="a5">A5</option>
+            <option value="a3">A3</option>
+            <option value="tabloid">Tabloid</option>
+          </select>
+        </label>
+        <label>Orientation
+          <select data-opt="orientation">
+            <option value="portrait">Portrait</option>
+            <option value="landscape">Landscape</option>
+          </select>
+        </label>
+        <label>Margins
+          <select data-opt="margin">
+            <option value="10">Tight</option>
+            <option value="18" selected>Normal</option>
+            <option value="25">Wide</option>
+          </select>
+        </label>
+        <label>Font
+          <select data-opt="font">
+            <option value="sans">Sans</option>
+            <option value="serif">Serif</option>
+            <option value="mono">Mono</option>
+          </select>
+        </label>
+        <label>Text size
+          <select data-opt="fontScale">
+            <option value="90">Small</option>
+            <option value="100" selected>Normal</option>
+            <option value="115">Large</option>
+            <option value="130">Huge</option>
+          </select>
+        </label>
+        <label>Mermaid theme
+          <select data-opt="mermaidTheme">
+            <option value="default">Default</option>
+            <option value="neutral">Neutral</option>
+            <option value="forest">Forest</option>
+            <option value="dark">Dark</option>
+            <option value="base">Base</option>
+          </select>
+        </label>
+        <label>Accent
+          <select data-opt="accent">
+            <option value="#2f6f4f">Forest</option>
+            <option value="#2a5db0">Blue</option>
+            <option value="#8a4bd0">Violet</option>
+            <option value="#c0392b">Red</option>
+            <option value="#111827">Ink</option>
+          </select>
+        </label>
+        <label>Document theme
+          <select data-opt="theme">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" data-opt="toc" checked> Table of contents</label>
+        <label class="check"><input type="checkbox" data-opt="cover" checked> Cover page</label>
+        <label class="check"><input type="checkbox" data-opt="guides" checked> Page guides in preview</label>
+        <label class="check"><input type="checkbox" data-opt="footer" checked> Footer</label>
+        <label class="check"><input type="checkbox" data-opt="pageNumbers" checked> Page numbers</label>
+      </div>
+      <div class="optrow">
+        <label class="grow">Title on cover<input type="text" data-opt="title" placeholder="from first H1"></label>
+        <label class="grow">Author<input type="text" data-opt="author" placeholder="optional"></label>
+      </div>
+      <label class="check">Base URL for relative images
+        <input type="text" data-opt="imageBaseUrl" placeholder="https://raw.githubusercontent.com/user/repo/main/">
+      </label>
+    </details>
+
+    <p class="hint">Mermaid block example</p>
+    <pre class="mermaid-snippet">```mermaid
+flowchart LR
+  A[Markdown] --&gt; B{Parser}
+  B --&gt; C[HTML]
+  B --&gt; D[PDF]
+```</pre>
+  </aside>
+
+  <!-- ---------------- center ---------------- -->
+  <section class="editor">
+    <div class="tabs">
+      <div id="tabs" class="tabstrip"></div>
+      <div class="editmeta" id="editmeta"></div>
+    </div>
+    <textarea id="source" spellcheck="false" placeholder="# Start typing Markdown&#10;&#10;Fenced blocks tagged `mermaid` are drawn as real diagrams in the PDF."></textarea>
+  </section>
+
+  <!-- ---------------- right ---------------- -->
+  <section class="preview">
+    <div class="pview-bar">
+      <span class="pview-title">Preview</span>
+      <div class="pview-tools">
+        <button id="btnRefresh" class="btn btn-ghost btn-sm" title="Re-render">&#8635;</button>
+        <select id="zoom" class="zoomsel" title="Zoom">
+          <option value="fit" selected>Fit</option>
+          <option value="0.5">50%</option>
+          <option value="0.75">75%</option>
+          <option value="1">100%</option>
+          <option value="1.5">150%</option>
+        </select>
+      </div>
+    </div>
+    <div class="pview-stage" id="stage">
+      <div class="sheet" id="sheet"><iframe id="pv" title="Preview" sandbox="allow-scripts allow-popups allow-downloads"></iframe></div>
+      <div class="empty" id="empty">
+        <p>Nothing loaded yet.</p>
+        <p class="muted">Drop a Markdown file on the left, or hit <b>Load sample</b>.</p>
+      </div>
+      <div class="spinner" id="spinner" hidden></div>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast" hidden></div>
+<script src="/app.js"></script>
+</body>
+</html>

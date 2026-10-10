@@ -1,0 +1,38 @@
+{
+  "name": "md2pdf",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-hosted web app: upload Markdown, preview it as real pages with Mermaid diagrams rendered, export to PDF",
+  "main": "server.js",
+  "author": "Akash Jana",
+  "license": "MIT",
+  "keywords": [
+    "markdown",
+    "pdf",
+    "mermaid",
+    "converter",
+    "self-hosted",
+    "puppeteer",
+    "markdown-it"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AkashJana18/md2pdf.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AkashJana18/md2pdf/issues"
+  },
+  "homepage": "https://github.com/AkashJana18/md2pdf#readme",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "4.19.2",
+    "highlight.js": "11.11.1",
+    "markdown-it": "14.1.0",
+    "mermaid": "11.4.1",
+    "multer": "1.4.5-lts.1",
+    "puppeteer-core": "23.11.1"
+  }
+}
